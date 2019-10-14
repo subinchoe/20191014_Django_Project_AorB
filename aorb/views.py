@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from .models import Question
+from .models import Question, Choice
 import random
 
 # Create your views here.
@@ -10,8 +10,24 @@ def index(request):
 
         question = random.choice(questions)
 
+        cnt_a = question.choice_set.filter(pick="1").count()
+        cnt_b = question.choice_set.filter(pick="2").count()
+        cnt_all = cnt_a + cnt_b
+        ratio_a = "{:.1f}".format(cnt_a / cnt_all * 100)
+        ratio_b = "{:.1f}".format(cnt_b / cnt_all * 100)
+        
+
+        cnt = {
+            'cnt_a': cnt_a,
+            'cnt_b': cnt_b,
+            'cnt_all': cnt_all,
+            'ratio_a': ratio_a,
+            'ratio_b': ratio_b,
+        }
+
         context = {
             'question' : question,
+            'cnt': cnt,
         }
 
     else:
@@ -34,17 +50,32 @@ def create(request):
     else:
         return render(request, "form.html")
 
-def create_comment(request, id):
-    print(type(request.POST.get('pick')), request.POST.get('comment'))
-    pass
+def comment_create(request, question_id):
+    if request.method == "POST":
+        pick = request.POST.get('pick')    
+        comment = request.POST.get('comment')
+        question = Question.objects.get(id=question_id)
+
+        Choice.objects.create(
+            pick=pick,
+            comment=comment,
+            question=question
+        )
+
+        context = {
+            'question' : Question.objects.get(id=question_id),
+        }
+
+        return render(request, 'index.html', context)
+
 
 def update(request, id):
+    question = Question.objects.get(id=id)
     if request.method == "POST":
         ask = request.POST.get('ask')
         itemA = request.POST.get('itemA')
         itemB = request.POST.get('itemB')
 
-        question = Question.objects.get(id=id)
         question.ask = ask
         question.itemA = itemA
         question.itemB = itemB
@@ -56,8 +87,6 @@ def update(request, id):
         return render(request, 'index.html', context)
 
     else:
-        question = Question.objects.get(id=id)
-
         context = {
             'question': question,
         }
