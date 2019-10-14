@@ -35,7 +35,7 @@ def create(request):
         return render(request, "form.html")
 
 def create_comment(request, id):
-    print(request.POST.get('pick'), request.POST.get('comment'))
+    print(type(request.POST.get('pick')), request.POST.get('comment'))
     pass
 
 def update(request, id):
