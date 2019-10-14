@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block body %}
+  <form action="" method="POST">
+    {% csrf_token %}
+
+    <div class="form-group">
+      <label for="ask">ask</label>
+      <input type="text" class="form-control" id="ask" placeholder="질문을 입력해주세요." name="ask" value="{{question.ask}}">
+    </div>
+    <div class="form-group">
+      <label for="itemA">itemA</label>
+      <input type="text" class="form-control" id="itemA" placeholder="itemA를 입력해주세요." name="itemA" value="{{question.itemA}}">
+    </div>
+    <div class="form-group">
+      <label for="itemB">itemB</label>
+      <input type="text" class="form-control" id="itemB" placeholder="itemB를 입력해주세요." name="itemB" value="{{question.itemB}}">
+    </div>
+    <button type="submit" class="btn btn-primary">Submit</button>
+
+  </form>
+{% endblock %}
