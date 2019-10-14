@@ -4,36 +4,46 @@ import random
 
 # Create your views here.
 
-def index(request):
+def random_pick(request):
     questions = Question.objects.all()
     if questions:
-
         question = random.choice(questions)
 
+        return redirect('aorb:detail', question.id)
+    else:
+        return redirect('aorb:index')
+
+def detail(request, id):
+    question = Question.objects.get(id=id)
+
+    if question.choice_set.all():
         cnt_a = question.choice_set.filter(pick="1").count()
         cnt_b = question.choice_set.filter(pick="2").count()
         cnt_all = cnt_a + cnt_b
         ratio_a = "{:.1f}".format(cnt_a / cnt_all * 100)
         ratio_b = "{:.1f}".format(cnt_b / cnt_all * 100)
-        
 
         cnt = {
-            'cnt_a': cnt_a,
-            'cnt_b': cnt_b,
-            'cnt_all': cnt_all,
             'ratio_a': ratio_a,
             'ratio_b': ratio_b,
         }
-
-        context = {
-            'question' : question,
-            'cnt': cnt,
-        }
-
     else:
-        context = {
-            'question' : 0,
+        cnt = {
+            'ratio_a': '0.0',
+            'ratio_b': '0.0',
         }
+
+    context = {
+        'question' : question,
+        'cnt': cnt,
+    }
+    print(cnt)
+    return render(request, 'detail.html', context)
+
+def index(request):
+    context = {
+        'questions': Question.objects.all()
+    }
 
     return render(request, 'index.html', context)
 
@@ -62,12 +72,12 @@ def comment_create(request, question_id):
             question=question
         )
 
-        context = {
-            'question' : Question.objects.get(id=question_id),
-        }
+        return redirect('aorb:detail', question_id)
 
-        return render(request, 'index.html', context)
+def comment_delete(request, question_id, choice_id):
+    Choice.objects.get(id=choice_id).delete()
 
+    return redirect('aorb:detail', question_id)
 
 def update(request, id):
     question = Question.objects.get(id=id)
@@ -81,10 +91,7 @@ def update(request, id):
         question.itemB = itemB
         question.save()
 
-        context = {
-            'question' : question,
-        }
-        return render(request, 'index.html', context)
+        return redirect('aorb:detail', id)
 
     else:
         context = {
@@ -96,3 +103,14 @@ def delete(request, id):
     Question.objects.get(id=id).delete()
 
     return redirect('aorb:index')
+
+def search(request):
+    keyword = request.GET.get('keyword')
+    
+    questions = Question.objects.filter(ask__icontains=keyword)
+    
+    context = {
+        'questions': questions,
+    }
+
+    return render(request, 'index.html', context)
