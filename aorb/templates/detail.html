@@ -40,7 +40,8 @@
       </form>
     </li>
     {% for choice in question.choice_set.all %}
-      <li class="list-group-item">{{choice.pick}},{{choice.comment}}
+      <li class="list-group-item">
+        {{choice.pick}}{{choice.comment}}
         <a class="btn btn-danger" href="{% url 'aorb:comment_delete' question.id choice.id %}">삭제</a>
       </li>
     {% empty %}
